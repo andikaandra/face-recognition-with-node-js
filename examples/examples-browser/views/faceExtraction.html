@@ -23,7 +23,9 @@
       <div id="my_camera" style="width:640px; height:480px;"></div>
       <div id="my_result"></div>
     
-      <a id="fotoButton" class="waves-effect center-align waves-light btn" href="javascript:void(take_snapshot())"><i class="material-icons left">camera_alt</i>FOTO</a>
+      <div id="fotoButton" class="center-align">
+          <a class="waves-effect center-align waves-light btn" href="javascript:void(take_snapshot())"><i class="material-icons left">camera_alt</i>FOTO</a>
+      </div>
       <div id="buttonProps" class="center-align" style="display:none">
         <a class="waves-effect waves-light btn red" href="javascript:void(hapus())"><i class="material-icons left">delete</i>HAPUS</a> &emsp;&emsp;
         <a class="waves-effect waves-light btn blue" href="javascript:void(mulai())"><i class="material-icons right">send</i>GASS</a>
@@ -37,6 +39,9 @@
     <div class="row" style="display:none" id="kecocokan">
       <label for="distance">Kecocokan :</label>
       <input disabled value="-" id="distance" type="text" class="bold" style="text-align:center">
+    </div>
+    <div class="row" style="display:none" id="resetButton">
+        <a class="waves-effect center-align waves-light btn" href="javascript:void(reset())">RESET</a>
     </div>
 
     <div class="row side-by-side" style="display:none">
@@ -82,6 +87,10 @@
       $('#fotoButton').css('display', 'block')
       $('#buttonProps').css('display', 'none')
       document.getElementById('my_result').innerHTML = ''
+    }    
+
+    function reset() {
+      document.location.reload(true)
     }    
 
     function mulai() {
