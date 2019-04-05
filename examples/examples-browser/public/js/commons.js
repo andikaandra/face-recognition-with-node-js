@@ -26,7 +26,7 @@ function renderNavBar(navbarId, exampleUri) {
   const examples = [
     {
       uri: 'face_extraction',
-      name: 'Cocok ta gak?'
+      name: 'Love Meter?'
     },
     {
       uri: 'webcam_face_detection',
