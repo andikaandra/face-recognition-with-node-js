@@ -112,6 +112,10 @@
       const detections = await faceapi.detectAllFaces(inputImgEl, options)
       const faceImages = await faceapi.extractFaces(inputImgEl, detections)
 
+      if(faceImages.length<2){
+        alert("Wajah kurang")
+        return
+      }
       var img = new Image()
       img.src = faceImages[0].toDataURL()
       img.style.width = '100px'
