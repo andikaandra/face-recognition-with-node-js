@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="face-api.js"></script>
+  <script src="js/commons.js"></script>
+  <script src="js/bbt.js"></script>
+  <script src="js/webcamjs/webcam.js"></script>
+  <script src="js/faceDetectionControls.js"></script>
+  <script src="js/imageSelectionControls.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+</head>
+<body>
+  <div id="navbar"></div>
+  <div class="center-content page-container">
+    <div class="progress" id="loader">
+      <div class="indeterminate"></div>
+    </div>
+    <div style="position: relative" class="margin">
+      <div id="my_camera" style="width:640px; height:480px;"></div>
+      <div id="my_result"></div>
+    
+      <a id="fotoButton" href="javascript:void(take_snapshot())">Take Snapshot</a>
+      <a style="display:none" id="hapusButton" href="javascript:void(hapus())">HAPUS</a>
+      <a style="display:none" id="gasButton" href="javascript:void(mulai())">GASS</a>
+      <!-- <img id="inputImg" src="" style="max-width: 800px;" /> -->
+      <canvas id="overlay" />
+    </div>
+    <br><br>
+    <div id="facesContainer"></div>
+    <br><br>
+    <div class="row" style="display:none" id="kecocokan">
+      <label for="distance">Kecocokan :</label>
+      <input disabled value="-" id="distance" type="text" class="bold" style="text-align:center">
+    </div>
+
+    <div class="row side-by-side" style="display:none">
+      <!-- face_detector_selection_control -->
+      <div id="face_detector_selection_control" class="row input-field" style="margin-right: 20px;">
+        <select id="selectFaceDetector">
+          <option value="ssd_mobilenetv1">SSD Mobilenet V1</option>
+          <option value="tiny_face_detector">Tiny Face Detector</option>
+          <option value="mtcnn">MTCNN</option>
+        </select>
+        <label>Select Face Detector</label>
+      </div>
+      <!-- face_detector_selection_control -->
+
+      <!-- image_selection_control -->
+      <div id="selectList"></div>
+      <!-- image_selection_control -->
+    </div>
+
+  </div>
+  <script>
+    Webcam.set({
+			width: 640,
+			height: 480,
+			dest_width: 640,
+			dest_height: 480,
+			image_format: 'jpeg',
+			jpeg_quality: 90
+		});
+		Webcam.attach( '#my_camera' );
+		
+		function take_snapshot() {
+      $('#my_camera').css('display', 'none')
+      $('#fotoButton').css('display', 'none')
+      $('#hapusButton').css('display', 'block')
+      $('#gasButton').css('display', 'block')
+			Webcam.snap( function(data_uri) {
+				document.getElementById('my_result').innerHTML = '<img id="inputImg" src="'+data_uri+'"/>';
+			} );
+    }
+
+    function hapus() {
+      $('#my_camera').css('display', 'block')
+      $('#fotoButton').css('display', 'block')
+      $('#hapusButton').css('display', 'none')
+      $('#gasButton').css('display', 'none')
+      document.getElementById('my_result').innerHTML = ''
+    }    
+
+    function mulai() {
+      initImageSelectionControls()
+      initFaceDetectionControls()
+      run()
+    }
+    const threshold = 40
+    let descriptors = { desc1: null, desc2: null }
+    
+    async function updateResults() {
+      if (!isFaceDetectionModelLoaded()) {
+        return
+      }
+
+      const inputImgEl = $('#inputImg').get(0)
+
+      const options = getFaceDetectorOptions()
+      const detections = await faceapi.detectAllFaces(inputImgEl, options)
+      const faceImages = await faceapi.extractFaces(inputImgEl, detections)
+
+      var img = new Image()
+      img.src = faceImages[0].toDataURL()
+      img.style.width = '100px'
+
+      var img1 = new Image()
+      img1.src = faceImages[1].toDataURL()
+      img1.style.width = '100px'
+
+      displayExtractedFaces(img, img1)
+      // displayExtractedFaces(faceImages)
+
+
+      descriptors['desc1'] = await faceapi.computeFaceDescriptor(img)
+      descriptors['desc2'] = await faceapi.computeFaceDescriptor(img1)
+      const distance = faceapi.round(
+        faceapi.euclideanDistance(descriptors.desc1, descriptors.desc2)
+      )
+      let text = (distance)*100
+      let bgColor = '#ffffff'
+      if (text < threshold) {
+        text += ' % Ga Cocok :('
+        bgColor = '#ce7575'
+      }
+      else{
+        text += ' % Hehe : '
+      }
+      $('#kecocokan').css('display', 'block')
+      $('#distance').val(text)
+      $('#distance').css('background-color', bgColor)
+    }
+
+    function displayExtractedFaces(img, img1) {
+      const canvas = $('#overlay').get(0)
+      const { width, height } = $('#inputImg').get(0)
+      canvas.width = width
+      canvas.height = height
+
+      $('#facesContainer').empty()
+
+      // var img = new Image()
+      // img.src = faceImages[0].toDataURL()
+      $('#facesContainer').append(img)
+
+      const love = document.createElement('img')
+      love.src = 'love.png'
+      love.width = '80'
+      love.height = '80'
+      love.style.margin = '10px'
+      $('#facesContainer').append(love)
+
+      // var img1 = new Image()
+      // img1.src = faceImages[1].toDataURL()
+      $('#facesContainer').append(img1)
+      // faceImages.forEach(canvas => {
+      //   $('#facesContainer').append(canvas)
+      // })
+    }
+
+    async function run() {
+      // load face detection model
+      await faceapi.loadFaceRecognitionModel()
+      await changeFaceDetector(selectedFaceDetector)
+
+      // start processing image
+      updateResults()
+    }
+
+    $(document).ready(function() {
+      renderNavBar('#navbar', 'face_extraction')
+    })
+  </script>
+</body>
+</html>
