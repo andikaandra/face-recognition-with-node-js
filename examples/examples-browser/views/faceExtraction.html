@@ -10,7 +10,6 @@
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
   <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
 </head>
 <body>
@@ -23,23 +22,20 @@
       <div id="my_camera" style="width:640px; height:480px;"></div>
       <div id="my_result"></div>
     
+      <a id="fotoButton" class="center-align" href="javascript:void(take_snapshot())">FOTO</a>
+      <div id="buttonProps" class="center-align" style="display:none">
+        <a href="javascript:void(hapus())">HAPUS</a>
+        <a href="javascript:void(mulai())">GASS</a>
+      </div>
+      <!-- <img id="inputImg" src="" style="max-width: 800px;" /> -->
+      <canvas id="overlay" />
     </div>
-    <a id="fotoButton" class="waves-effect center-align waves-light btn" href="javascript:void(take_snapshot())"><i class="material-icons left">camera_alt</i>FOTO</a>
-    <div id="buttonProps" class="center-align" style="display:none">
-      <a class="waves-effect waves-light btn red" href="javascript:void(hapus())"><i class="material-icons left">delete</i>HAPUS</a> &emsp;&emsp;
-      <a class="waves-effect waves-light btn blue" href="javascript:void(mulai())"><i class="material-icons right">send</i>GASS</a>
-    </div>
-    <!-- <img id="inputImg" src="" style="max-width: 800px;" /> -->
-    <canvas id="overlay" />
     <br><br>
     <div id="facesContainer"></div>
     <br><br>
     <div class="row" style="display:none" id="kecocokan">
       <label for="distance">Kecocokan :</label>
       <input disabled value="-" id="distance" type="text" class="bold" style="text-align:center">
-    </div>
-    <div class="row" style="display:none" id="resetButton">
-        <a class="waves-effect center-align waves-light btn" href="javascript:void(reset())">RESET</a>
     </div>
 
     <div class="row side-by-side" style="display:none">
@@ -133,7 +129,6 @@
         text += ' % Hehe : '
       }
       $('#kecocokan').css('display', 'block')
-      $('#resetButton').css('display', 'block')
       $('#distance').val(text)
       $('#distance').css('background-color', bgColor)
     }
